@@ -4,6 +4,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import com.google.common.collect.Table;
+
 import hu.bme.mit.train.interfaces.TrainController;
 import hu.bme.mit.train.interfaces.TrainUser;
 
@@ -19,6 +22,9 @@ public class TrainSensorTest {
         mockUser = Mockito.mock(TrainUser.class);
         trainSensor = new TrainSensorImpl(mockController, mockUser);
     }
+
+
+    
 
     @Test
     public void testOverrideSpeedLimitUnderAbsoluteMargin() {
@@ -44,5 +50,18 @@ public class TrainSensorTest {
         Mockito.when(mockController.getReferenceSpeed()).thenReturn(100);
         trainSensor.overrideSpeedLimit(60);
         Mockito.verify(mockUser).setAlarmState(false);
+    }
+
+    @Test
+    public void testAddRecord() {
+        String date = "2024-03-10";
+        Integer joystickPosition = 3;
+        Integer referenceSpeed = 50;
+
+        trainSensor.addRecord(date, joystickPosition, referenceSpeed);
+
+        Table<String, Integer, Integer> tachnographTable = trainSensor.tachnographTable;
+        Assert.assertTrue(tachnographTable.contains(date, joystickPosition));
+        Assert.assertEquals(referenceSpeed, tachnographTable.get(date, joystickPosition));
     }
 }
